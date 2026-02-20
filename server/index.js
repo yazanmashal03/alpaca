@@ -11,12 +11,9 @@ const alpaca = new Alpaca({
   keyId: process.env.ALPACA_API_KEY,
   secretKey: process.env.ALPACA_SECRET_KEY,
   paper: process.env.ALPACA_PAPER === 'true',
-  baseUrl: process.env.ALPACA_PAPER === 'true' 
-    ? 'https://paper-api.alpaca.markets/v2'
-    : 'https://api.alpaca.markets'
 });
 
-console.log(`Alpaca Client Initialized: Using ${process.env.ALPACA_PAPER === 'true' ? 'PAPER' : 'LIVE'} environment.`);
+console.log(`Alpaca Client Initialized: Paper=${process.env.ALPACA_PAPER}`);
 
 let strategyInterval = null;
 let strategyRunning = false;
