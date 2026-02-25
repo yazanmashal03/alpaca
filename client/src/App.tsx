@@ -22,10 +22,33 @@ interface Position {
   unrealized_plpc: string;
 }
 
+interface MarketMover {
+  symbol: string;
+  price: number;
+  change: string;
+  changePercent: string;
+}
+
+interface MarketIndex {
+  symbol: string;
+  price: number;
+  change: string;
+  changePercent: string;
+}
+
+interface PortfolioSummary {
+  unrealized: string;
+  realized: string;
+  total: string;
+}
+
 function App() {
   const [account, setAccount] = useState<Account | null>(null);
   const [positions, setPositions] = useState<Position[]>([]);
   const [strategyStatus, setStrategyStatus] = useState({ running: false, lastLog: "" });
+  const [marketMovers, setMarketMovers] = useState<MarketMover[]>([]);
+  const [indexData, setIndexData] = useState<MarketIndex | null>(null);
+  const [portfolioSummary, setPortfolioSummary] = useState<PortfolioSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,21 +58,38 @@ function App() {
       const results = await Promise.allSettled([
         axios.get(`${API_BASE}/account`),
         axios.get(`${API_BASE}/positions`),
-        axios.get(`${API_BASE}/strategy/status`)
+        axios.get(`${API_BASE}/strategy/status`),
+        axios.get(`${API_BASE}/market/movers`),
+        axios.get(`${API_BASE}/market/indices`),
+        axios.get(`${API_BASE}/portfolio/summary`)
       ]);
 
-      const [accRes, posRes, stratRes] = results;
+      const [accRes, posRes, stratRes, moverRes, indexRes, summaryRes] = results;
 
       if (accRes.status === 'fulfilled') setAccount(accRes.value.data);
-      else {
-        console.error("Account fetch failed:", accRes.reason);
-        throw new Error("Could not fetch account info. Check API keys.");
-      }
-
+      else console.error("Account fetch failed:", accRes.reason);
+      
       if (posRes.status === 'fulfilled') setPositions(posRes.value.data);
-      if (stratRes.status === 'fulfilled') setStrategyStatus(stratRes.value.data);
+      else console.error("Positions fetch failed:", posRes.reason);
 
-      setError(null);
+      if (stratRes.status === 'fulfilled') setStrategyStatus(stratRes.value.data);
+      else console.error("Strategy status fetch failed:", stratRes.reason);
+
+      if (moverRes.status === 'fulfilled') setMarketMovers(moverRes.value.data);
+      else console.error("Market movers fetch failed:", moverRes.reason);
+
+      if (indexRes.status === 'fulfilled') setIndexData(indexRes.value.data);
+      else console.error("Index data fetch failed:", indexRes.reason);
+
+      if (summaryRes.status === 'fulfilled') setPortfolioSummary(summaryRes.value.data);
+      else console.error("Portfolio summary fetch failed:", summaryRes.reason);
+
+      const hasCriticalError = accRes.status === 'rejected';
+      if (hasCriticalError) {
+        setError("Crucial account data could not be fetched. Check your server and API keys.");
+      } else {
+        setError(null);
+      }
     } catch (err: any) {
       console.error("Fetch Error:", err);
       setError(err.response?.data?.error || err.message || "Connection Error");
@@ -125,14 +165,55 @@ function App() {
             <label>Net Equity</label>
             <div className="value">${Number(account?.equity).toLocaleString()}</div>
           </div>
-          <div className={`metric-card ${Number(account?.cash) > 0 ? 'positive' : ''}`}>
-            <label>Cash Balance</label>
-            <div className="value">${Number(account?.cash).toLocaleString()}</div>
+          <div className="metric-card">
+            <label>Realized P/L</label>
+            <div className={`value ${Number(portfolioSummary?.realized) >= 0 ? 'positive' : 'negative'}`}>
+              ${Number(portfolioSummary?.realized).toLocaleString()}
+            </div>
+          </div>
+          <div className="metric-card">
+            <label>Unrealized P/L</label>
+            <div className={`value ${Number(portfolioSummary?.unrealized) >= 0 ? 'positive' : 'negative'}`}>
+              ${Number(portfolioSummary?.unrealized).toLocaleString()}
+            </div>
           </div>
           <div className="metric-card">
             <label>Buying Power</label>
             <div className="value">${Number(account?.buying_power).toLocaleString()}</div>
           </div>
+        </div>
+
+        <div className="market-overview-grid">
+          <section className="market-card-section">
+            <div className="section-header">
+              <h2>S&P 500 Index</h2>
+            </div>
+            {indexData && (
+              <div className="index-display">
+                <div className="index-price">${indexData.price.toLocaleString()}</div>
+                <div className={`index-change ${Number(indexData.change) >= 0 ? 'positive' : 'negative'}`}>
+                  {Number(indexData.change) >= 0 ? '+' : ''}{indexData.change} ({indexData.changePercent}%)
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="market-card-section">
+            <div className="section-header">
+              <h2>Top Movers (24h)</h2>
+            </div>
+            <div className="movers-list">
+              {marketMovers.map(mover => (
+                <div key={mover.symbol} className="mover-item">
+                  <span className="mover-symbol">{mover.symbol}</span>
+                  <span className="mover-price">${mover.price.toFixed(2)}</span>
+                  <span className={`mover-percent ${Number(mover.changePercent) >= 0 ? 'positive' : 'negative'}`}>
+                    {Number(mover.changePercent) >= 0 ? '+' : ''}{mover.changePercent}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
 
         <section className="strategy-section">

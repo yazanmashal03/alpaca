@@ -21,11 +21,13 @@ body {
 .dashboard-container {
   display: flex;
   height: 100vh;
+  width: 100vw;
 }
 
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
   background: var(--bg-lighter);
   border-right: 1px solid var(--border);
   padding: 1.5rem;
@@ -83,6 +85,7 @@ body {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  height: 100vh;
 }
 
 .top-bar {
@@ -107,7 +110,7 @@ body {
 /* Metrics Grid */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
@@ -128,6 +131,70 @@ body {
   font-size: 1.75rem;
   font-weight: 700;
   margin-top: 0.5rem;
+}
+
+/* Market Overview Grid */
+.market-overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.market-card-section {
+  background: var(--bg-lighter);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.index-display {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 80%;
+}
+
+.index-price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.index-change {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.movers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mover-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+.mover-symbol {
+  font-weight: 700;
+  flex: 1;
+}
+
+.mover-price {
+  color: var(--text-secondary);
+  margin-right: 1.5rem;
+}
+
+.mover-percent {
+  font-weight: 600;
+  min-width: 80px;
+  text-align: right;
 }
 
 /* Strategy Section */
