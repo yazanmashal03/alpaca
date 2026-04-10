@@ -4,6 +4,7 @@ node_modules/
 # Environment variables (CRITICAL: Hide keys)
 .env
 server/.env
+server/data/strategy.json
 
 # Build outputs
 dist/

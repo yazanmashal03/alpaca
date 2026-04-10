@@ -2,8 +2,8 @@
   "name": "alpaca-trading-dashboard",
   "version": "1.0.0",
   "scripts": {
-    "start:server": "cd server && node index.js",
-    "start:client": "cd client && npm run dev",
-    "dev": "npm run start:server & npm run start:client"
+    "start:server": "node server/index.js",
+    "start:client": "npm --prefix client run dev",
+    "dev": "node scripts/dev.js"
   }
 }
